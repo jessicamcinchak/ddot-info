@@ -149,7 +149,7 @@
             "data": {"type": "FeatureCollection", "features": []}
         }
     },
-    "sprite": "mapbox://sprites/cityofdetroit/cjhe6cx480zdc2sn0frdifb0w",
+    "sprite": "mapbox://sprites/cityofdetroit/cjdndtywb04ee2slc79udmzn8",
     "glyphs": "mapbox://fonts/cityofdetroit/{fontstack}/{range}.pbf",
     "layers": [{
             "id": "background",

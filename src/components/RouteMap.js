@@ -109,7 +109,7 @@ class RouteMap extends React.Component {
         let realtimeTrips = _.filter(geojson, o => { return o.properties.direction !== undefined });
         this.setState({ 
           realtimeTrips: realtimeTrips,
-          fetched: true
+          fetchedData: true
         });
       })
       .catch(e => console.log(e));
@@ -124,6 +124,7 @@ class RouteMap extends React.Component {
     })
 
     this.fetchData();
+    this.interval = setInterval(() => this.fetchData(), 3000);
 
     this.map.on('load', e => {
       let scheduleRoute = Schedules[this.props.route.number]
@@ -135,9 +136,43 @@ class RouteMap extends React.Component {
       this.map.getSource("busstops").setData({"type": "FeatureCollection", "features": this.state.stopFeatures})
       this.map.setPaintProperty("timepoint-labels", "text-color", chroma(this.props.route.color).darken(2).hex())
       this.map.setPaintProperty("timepoint-labels", "text-halo-color", "#fff")
+
+
+      this.map.addSource("realtimeTrips", {
+        "type": "geojson",
+        "data": {"type": "FeatureCollection", "features": this.state.realtimeTrips}
+      })
+
+      this.map.addLayer({
+        "id": "realtimeTrips",
+        "source": "realtimeTrips",
+        "type": "symbol",
+        "layout": {
+          "icon-image": "bus-15",
+          "icon-size": 1.25
+        }
+      })
+
+      this.map.on('click', e => {
+        const features = this.map.queryRenderedFeatures(e.point, {layers: ["realtimeTrips"]})
+        const bus = features[0]
+        if(features.length > 0) {
+          new mapboxgl.Popup({closeButton: false})
+            .setLngLat(bus.geometry.coordinates)
+            .setHTML(`<h3>${_.capitalize(bus.properties.direction)}<h3><h5>to</h5><h3>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</h3><h5>Next stop</h5><h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3>`)
+            .addTo(this.map)
+        }
+      })
+
     })
 
     window.addEventListener('resize', this._resize);
+  }
+
+  componentWillUpdate() {
+    if(this.state.fetchedData) {
+      this.map.getSource("realtimeTrips").setData({"type": "FeatureCollection", "features": this.state.realtimeTrips})
+    }
   }
 
   _resize = () => {

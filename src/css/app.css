@@ -116,3 +116,32 @@ body {
     grid-row: 2/9;
   }
 }
+
+.realtimeBus {
+  width: 15px;
+  height: 15px;
+  background-color: red;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.mapboxgl-popup {
+  max-width: 200px;
+  padding: 10;
+  margin: 10;
+}
+
+.mapboxgl-popup h3,h4,h5 {
+  padding: 0;
+  margin: 0;
+}
+
+.mapboxgl-popup h5 {
+  color: '#aaa';
+  font-weight: 300;
+}
+
+.mapboxgl-popup-content {
+  text-align: left;
+  font-family: 'Open Sans', sans-serif;
+}
