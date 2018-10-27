@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import routeDetails from '../data/routeDetails.js';
 import _ from 'lodash';
 import RouteHeader from './RouteHeader';
-// import RouteMap from './RouteMap';
+import RouteMap from './RouteMap';
 import RouteDetails from './RouteDetails';
 import Helpers from '../helpers';
 
@@ -17,7 +17,7 @@ class BusRoute extends React.Component {
     return (
       <div className="BusRoute" style={{ background: Helpers.colors['background'] }}>
         <RouteHeader number={this.props.match.params.name} page={this.props.match.url.split("/").slice(-1)} />
-        {/* <RouteMap route={route} /> */}
+        <RouteMap route={route} />
         <RouteDetails id={this.props.match.params.name} />
       </div>
     );
