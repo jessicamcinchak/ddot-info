@@ -124,6 +124,11 @@ class RouteMap extends React.Component {
       zoom: 15.5
     })
 
+    this.popup = new mapboxgl.Popup({
+      closeButton: false,
+      offset: 10
+    })
+
     this.fetchData();
     this.interval = setInterval(() => this.fetchData(), 3000);
 
@@ -158,7 +163,15 @@ class RouteMap extends React.Component {
         const features = this.map.queryRenderedFeatures(e.point, {layers: ["realtimeTrips"]})
         if(features.length > 0) {
           const bus = features[0]
-          this.setState({selectedRealtimeTrip: bus.properties.tripId})
+          this.setState({
+            selectedRealtimeTrip: bus.properties.tripId
+          })
+          if(!this.popup.isOpen()) {
+            this.popup
+              .setLngLat(bus.geometry.coordinates)
+              .setHTML(`<h3>${_.capitalize(bus.properties.direction)}<h3><h5>to</h5><h3>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</h3><h5>Next stop</h5><h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3><span>${bus.properties.updateTime}</span>`)    
+            this.popup.addTo(this.map)
+          }
         }
         else {
           this.setState({selectedRealtimeTrip: null})
@@ -176,10 +189,15 @@ class RouteMap extends React.Component {
     }
     if(this.state.selectedRealtimeTrip) {
       const bus = this.state.realtimeTrips.filter(rt => { return this.state.selectedRealtimeTrip === rt.properties.tripId })[0]
-      new mapboxgl.Popup()
-      .setLngLat(bus.geometry.coordinates)
-      .setHTML(`<h3>${_.capitalize(bus.properties.direction)}<h3><h5>to</h5><h3>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</h3><h5>Next stop</h5><h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3><span>${bus.properties.updateTime}</span>`)
-      .addTo(this.map)
+      this.popup
+        .setLngLat(bus.geometry.coordinates)
+        .setHTML(`<h3>${_.capitalize(bus.properties.direction)}<h3><h5>to</h5><h3>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</h3><h5>Next stop</h5><h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3><span>${bus.properties.updateTime}</span>`)
+      if(!this.popup.isOpen()) {
+        this.popup.addTo(this.map)
+      }
+    }
+    else {
+      this.popup.remove()
     }
   }
 
