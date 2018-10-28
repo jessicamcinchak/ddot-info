@@ -71,6 +71,7 @@ class RouteMap extends React.Component {
     this.state = {
       height: window.innerWidth < 768 ? 300 : ((window.innerHeight - 170) * 1 - 104),
       realtimeTrips: [],
+      selectedRealtimeTrip: null,
       fetchedData: false,
       scheduleRoute: scheduleRoute,
       tripIds: tripIds,
@@ -155,12 +156,12 @@ class RouteMap extends React.Component {
 
       this.map.on('click', e => {
         const features = this.map.queryRenderedFeatures(e.point, {layers: ["realtimeTrips"]})
-        const bus = features[0]
         if(features.length > 0) {
-          new mapboxgl.Popup({closeButton: false})
-            .setLngLat(bus.geometry.coordinates)
-            .setHTML(`<h3>${_.capitalize(bus.properties.direction)}<h3><h5>to</h5><h3>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</h3><h5>Next stop</h5><h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3>`)
-            .addTo(this.map)
+          const bus = features[0]
+          this.setState({selectedRealtimeTrip: bus.properties.tripId})
+        }
+        else {
+          this.setState({selectedRealtimeTrip: null})
         }
       })
 
@@ -172,6 +173,13 @@ class RouteMap extends React.Component {
   componentWillUpdate() {
     if(this.state.fetchedData) {
       this.map.getSource("realtimeTrips").setData({"type": "FeatureCollection", "features": this.state.realtimeTrips})
+    }
+    if(this.state.selectedRealtimeTrip) {
+      const bus = this.state.realtimeTrips.filter(rt => { return this.state.selectedRealtimeTrip === rt.properties.tripId })[0]
+      new mapboxgl.Popup()
+      .setLngLat(bus.geometry.coordinates)
+      .setHTML(`<h3>${_.capitalize(bus.properties.direction)}<h3><h5>to</h5><h3>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</h3><h5>Next stop</h5><h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3><span>${bus.properties.updateTime}</span>`)
+      .addTo(this.map)
     }
   }
 
