@@ -3,15 +3,15 @@ import { Card, CardHeader, CardContent } from '@material-ui/core';
 
 import RouteInput from './RouteInput';
 import RoutesList from './RoutesList';
-import Schedules from '../data/schedules';
+import routeDetails from '../data/routeDetails';
 
 class RouteSearch extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      allLines: (Object.values(Schedules)),
-      filteredLines: (Object.values(Schedules)),
+      allLines: routeDetails,
+      filteredLines: routeDetails,
       realTime: '',
       input: ''
     };
@@ -24,7 +24,7 @@ class RouteSearch extends Component {
     const matched = []
 
     this.state.allLines.forEach(ln => {
-      if ((ln.id.indexOf(val) > -1) || (ln.rt_name.toUpperCase().indexOf(val.toUpperCase()) > -1)) {
+      if ((ln.number.indexOf(val) > -1) || (ln.name.toUpperCase().indexOf(val.toUpperCase()) > -1)) {
         matched.push(ln);
       }
     })

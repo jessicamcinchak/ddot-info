@@ -1,23 +1,29 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+// import registerServiceWorker from './registerServiceWorker';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-// import { Router } from '@reach/router';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core';
 
 import './css/app.css';
 import App from './App';
 import About from './components/About';
-import RouteRealtime from './components/RouteRealtime';
-import RouteSchedule from './components/RouteSchedule';
 import RouteStops from './components/RouteStops';
 import BusRoute from './components/BusRoute'
 import Stop from './components/Stop';
 import Nearby from './components/Nearby';
-import SystemMap from './components/SystemMap'
+import SystemMap from './components/SystemMap';
+import RouteSchedule from './components/RouteSchedule';
+
+import ApolloClient from 'apollo-boost';
+import { ApolloProvider } from 'react-apollo';
 
 // import ReactGA from 'react-ga';
 // ReactGA.initialize('UA-107915075-4');
+
+const client = new ApolloClient({
+  uri: "https://ddot-gtfs.ngrok.io/graphql"
+});
 
 const muiTheme = createMuiTheme({
   typography: {
@@ -162,20 +168,22 @@ const muiTheme = createMuiTheme({
 
 ReactDOM.render(
   <Router onUpdate={() => window.scrollTo(0, 0)}>
-    {/* <GAListener> */}
-      <MuiThemeProvider theme={muiTheme}>
-        <Switch>
-          <Route exact path='/' component={App} />
-          <Route path='/about' component={About} />
-          <Route path='/nearby' component={Nearby} />
-          <Route path='/system' component={SystemMap} />
-          <Route path='/stop/:name' component={Stop} />
-          <Route path="/route/:name/real-time" component={RouteRealtime} />
-          <Route path="/route/:name/schedule" component={RouteSchedule} />
-          <Route path="/route/:name/stops" component={RouteStops} />
-          <Route path='/route/:name' component={BusRoute} />
-        </Switch>
-      </MuiThemeProvider>
-    {/* </GAListener> */}
+    <ApolloProvider client={client}>
+      {/* <GAListener> */}
+        <MuiThemeProvider theme={muiTheme}>
+          <Switch>
+            <Route exact path='/' component={App} />
+            <Route path='/about' component={About} />
+            <Route path='/nearby' component={Nearby} />
+            <Route path='/system' component={SystemMap} />
+            <Route path='/stop/:name' component={Stop} />
+            <Route path="/route/:name/schedule" component={RouteSchedule} />
+            <Route path="/route/:name/stops" component={RouteStops} />
+            <Route path='/route/:name' component={BusRoute} />
+          </Switch>
+        </MuiThemeProvider>
+      {/* </GAListener> */}
+    </ApolloProvider>
   </Router>,
   document.getElementById('root'));
+// registerServiceWorker();

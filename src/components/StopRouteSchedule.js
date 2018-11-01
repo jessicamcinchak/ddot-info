@@ -8,9 +8,7 @@ import Divider from '@material-ui/core/Divider';
 import moment from 'moment';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 
-import Schedules from '../data/schedules.js';
-import Stops from '../data/stops.js';
-import Helpers from '../helpers.js';
+import routeDetails from '../data/routeDetails.js';
 
 /** Schedule for a single stop for StopRouteSchedule */
 class StopRouteSchedule extends Component {
@@ -21,7 +19,7 @@ class StopRouteSchedule extends Component {
 
     return (
       <div>
-        {Helpers.cleanScheduleHeadsign(this.props.schedules[0]).stopRouteDirectionSchedules.map((rds, i) => (
+        {this.props.schedules[0].stopRouteDirectionSchedules.map((rds, i) => (
           <div key={i}>
             {i === 1 ? <Divider /> : ``}
             <Card style={{ padding: 10 }}>
@@ -29,7 +27,7 @@ class StopRouteSchedule extends Component {
                 <ScheduleIcon style={{ marginLeft: '.5em', color: '#aaa', borderRadius: 999, height: '1.25em', width: '1.25em' }}/>
                 <CardHeader
                   title={_.capitalize(rds.tripHeadsign)}
-                  subheader={`to ${Stops[Schedules[this.props.route].timepoints[rds.tripHeadsign].slice(-1)[0]].name}`}
+                  subheader={`to someplace`}
                   style={{ padding: 10, marginLeft: 10 }} />
               </div>
               <CardContent style={{ padding: 10 }}>
@@ -46,7 +44,7 @@ class StopRouteSchedule extends Component {
                     <GridListTile 
                       key={sst.tripId}
                       style={{
-                        backgroundColor: this.props.predictions.indexOf(sst.tripId) > -1 ? chroma(Schedules[this.props.route].color).alpha(0.25).css() : 'rgba(255,255,255,1)',
+                        backgroundColor: this.props.predictions.indexOf(sst.tripId) > -1 ? chroma(routeDetails[this.props.route].color).alpha(0.25).css() : 'rgba(255,255,255,1)',
                         textAlign: 'center',
                         verticalAlign: 'center',
                         letterSpacing: '-0.25px',
@@ -64,7 +62,7 @@ class StopRouteSchedule extends Component {
         ))}
         <div style={{ display: 'flex', alignItems: 'center', background: 'white', padding: '0em 1.5em 1em 1.5em' }}>
           <span style={{ fontSize: '.9em' }}>Displaying AM times, <b>PM times</b>, and </span>
-          <span style={{ background: chroma(Schedules[this.props.route].color).alpha(0.25).css(), fontSize: '.9em', marginLeft: '.25em', padding: '.15em' }}> next departures</span>
+          <span style={{ background: chroma(routeDetails[this.props.route].color).alpha(0.25).css(), fontSize: '.9em', marginLeft: '.25em', padding: '.15em' }}> next departures</span>
         </div>
       </div>
     );

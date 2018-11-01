@@ -1,9 +1,10 @@
+
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import Helpers from '../helpers';
 
 import Stops from '../data/stops.js';
-import Schedules from '../data/schedules.js';
 
 const defaultStyles = {
   display: 'flex',
@@ -38,9 +39,9 @@ class StopLink extends Component {
             <span style={{ padding: '.25rem', fontSize: '.75rem', background: '#eee' }}>#{this.props.id}</span>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', width: '50%', marginTop: '-.25em' }}>
-          {Stops[this.props.id] && routes.length < 25 ? routes.sort((a, b) => { return a - b}).map((r, i) => (
+          {Stops[this.props.id] ? routes.sort((a, b) => { return a - b }).map((r, i) => (
             <Link style={exclude.toString() === r.toString() ? { display: 'none' } : { marginRight: '.5rem', textDecoration: 'none' }} to={{pathname: `/route/${r}`}} key={i}>
-              <div style={exclude.toString() === r.toString() ? { display: 'none' } : { display: 'flex', alignItems:'center',  justifyContent: 'center', width: '2em', height: '2em', backgroundColor: Schedules[r].color, border: `1px solid ${Schedules[r].color}`, borderRadius: Schedules[r].color === '#004445' ? 99 : 0, color: '#fff', fontWeight: 700, marginTop: '.25em' }}>
+              <div style={exclude.toString() === r.toString() ? { display: 'none' } : { display: 'flex', alignItems:'center',  justifyContent: 'center', width: '2em', height: '2em', backgroundColor: Helpers.getRouteDetails(r).color, border: `1px solid ${Helpers.getRouteDetails(r).color}`, borderRadius: Helpers.getRouteDetails(r).color === "#004445" ? 99 : 0, color: '#fff', fontWeight: 700, marginTop: '.25em' }}>
                 {r}
               </div> 
             </Link>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import SwipeableViews from 'react-swipeable-views';
@@ -9,13 +10,12 @@ import TransferIcon from '@material-ui/icons/SwapHoriz';
 
 import Stops from '../data/stops.js';
 import TopNav from './TopNav';
-// import StopWithPredictionMap from './StopWithPredictionMap';
+import StopWithPredictionMap from './StopWithPredictionMap';
 import StopTransfers from './StopTransfers';
 import StopRouteSchedule from './StopRouteSchedule';
 import RouteBadge from './RouteBadge';
 import RouteLink from './RouteLink';
 import RoutePredictionList from './RoutePredictionList';
-import Schedules from '../data/schedules.js';
 import Helpers from '../helpers';
 
 const styles = {
@@ -99,7 +99,7 @@ class Stop extends React.Component {
   componentDidMount() {
     this.fetchRealtimeData(this.props.match.params.name);
     this.fetchStopScheduleData(this.props.match.params.name);
-    this.interval = setInterval(() => this.fetchRealtimeData(this.props.match.params.name), 4000);
+    this.interval = setInterval(() => this.fetchRealtimeData(this.props.match.params.name), 5000);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -135,7 +135,7 @@ class Stop extends React.Component {
     return (
       <div className='App' style={{ background: Helpers.colors['background']}}>
         <TopNav />
-        {/* <StopWithPredictionMap stopId={stopId} center={stopCoords} prediction={this.state.tripData} route={this.state.route} />  */}
+        <StopWithPredictionMap stopId={stopId} center={stopCoords} prediction={this.state.tripData} route={this.state.route} /> 
         <div className='routes'>
           <Card>
             <div style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
@@ -174,19 +174,17 @@ class Stop extends React.Component {
                       <RoutePredictionList
                         predictions={_.filter(this.state.predictions.data.entry.arrivalsAndDepartures, function(o) { return o.routeShortName === r[0].padStart(3, '0')})} 
                         references={this.state.predictions.data.references}
-                        route={r[0]}
+                        route={Helpers.getRouteDetails(r)}
                         stop={stopId}
                         multipleDirs={this.state.multipleDirs}
                         isOpen={i === slideIndex}
                         onChange={this.handleRoutePredictionChange} />
-                    <StopRouteSchedule 
-                      schedules={_.filter(this.state.scheduledStops.data.entry.stopRouteSchedules, s => {
-                        return s.routeId.split("_").pop() === Schedules[r[0]].rt_id.toString()
-                      })} 
+                    {/* <StopRouteSchedule 
+                      schedules={this.state.scheduledStops.data.entry.stopRouteSchedules.filter} 
                       route={r[0]}
                       multipleDirs={this.state.multipleDirs}
                       predictions={_.filter(this.state.predictions.data.entry.arrivalsAndDepartures, function(o) { return o.routeShortName === r[0].padStart(3, '0')}).map(p => p.tripId)} 
-                      />
+                      /> */}
                       </div> : ``}
                   </div>
                 </div>

@@ -7,13 +7,15 @@ import TransferIcon from '@material-ui/icons/SwapHoriz';
 import BusStopIcon from './BusStop';
 import StopLink from './StopLink';
 import Stops from '../data/stops.js';
-import Schedules from '../data/schedules.js';
 import Helpers from '../helpers';
+import routeDetails from '../data/routeDetails';
 
 /** List of all stops and transfers for RouteStops */
 class RouteStopList extends Component {
   constructor(props) {
     super(props);
+
+    this.route = Helpers.getRouteDetails(this.props.routeNumber)
 
     this.state = {
       allStops: [],
@@ -39,19 +41,16 @@ class RouteStopList extends Component {
 
   render() {
     let filteredStops = [];
-    let stops = [];
-    const first_timepoint = this.props.timepoints[2];
 
     if (this.state.fetchedStops) {
-      stops = _.filter(this.state.allStops, o => { 
-        return o.stopIds.indexOf(`DDOT_${first_timepoint}`) > -1 })
-      filteredStops = stops[0]['stopIds']
+      filteredStops = this.state.allStops[this.route.directions.indexOf(this.props.direction)]['stopIds']
+      console.log(filteredStops)
       if (this.props.input.length > 0) {
         filteredStops = _.filter(filteredStops, s => { return (Stops[s.slice(5,)].name.toLowerCase().indexOf(this.props.input)  > -1 || s.slice(5,).indexOf(this.props.input) > -1) })
       }
     }
 
-    const color = Schedules[this.props.routeNumber].color;
+    const color = routeDetails.filter(rd => rd.number === this.props.routeNumber)[0].color
 
     return (
       <Card>
@@ -69,7 +68,7 @@ class RouteStopList extends Component {
           <div style={{ height: '60vh', overflowY: 'scroll' }}>
             {filteredStops.length > 0 ? filteredStops.map((stop, i) =>
               <div style={{ display: 'flex', alignItems: 'center', zIndex: 0 }} key={i}>
-                <StopLink id={stop.slice(5,)} exclude={this.props.routeNumber} color={color} isTimepoint={this.props.timepoints.indexOf(stop.slice(5,)) > -1} showTransfers showBorder/>
+                <StopLink id={stop.slice(5,)} exclude={this.props.routeNumber} color={color} isTimepoint={false} showTransfers showBorder/>
               </div>
             ) : `Loading stops...`}
           </div>

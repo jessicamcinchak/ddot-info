@@ -18,10 +18,11 @@ class RoutesList extends Component {
       padding: 10
     }
 
+    console.log(this.props.lines)
     return (
       <div style={gridStyle}>
         {this.props.lines.map(line =>
-          <RouteLink key={line.id} id={line.id} routeId={line.rt_id} icons />
+          <RouteLink key={line.number} id={line.number.toString()} routeId={line.rt_id} icons />
         )}
       </div>
     );
