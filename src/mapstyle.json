@@ -120,28 +120,36 @@
             "url": "mapbox://mapbox.satellite",
             "tileSize": 256
         },
+        "stops": {
+            "type": "vector",
+            "url": "mapbox://cityofdetroit.cjbeojxj72m3s34llgz0yt0u7-9mm9h"
+        },
+        "ddotroutes": {
+            "type": "vector",
+            "url": "mapbox://cityofdetroit.cjljmaojh22zo2wogr9f5fzts-6wa2r"
+        },
         "realtime": {
             "type": "geojson",
-            "data": {}
+            "data": {"type": "FeatureCollection", "features": []}
         },
         "timepoints": {
             "type": "geojson",
-            "data": {}
+            "data": {"type": "FeatureCollection", "features": []}
         },
         "busstops": {
             "type": "geojson",
-            "data": {}
+            "data": {"type": "FeatureCollection", "features": []}
         },
         "geolocated": {
             "type": "geojson",
-            "data": {}
+            "data": {"type": "FeatureCollection", "features": []}
         },
         "walk-radius": {
             "type": "geojson",
-            "data": {}
+            "data": {"type": "FeatureCollection", "features": []}
         }
     },
-    "sprite": "mapbox://sprites/cityofdetroit/cjhe6cx480zdc2sn0frdifb0w",
+    "sprite": "mapbox://sprites/cityofdetroit/cjdndtywb04ee2slc79udmzn8",
     "glyphs": "mapbox://fonts/cityofdetroit/{fontstack}/{range}.pbf",
     "layers": [{
             "id": "background",
@@ -8171,6 +8179,136 @@
             }
         },
         {
+            "id": "ddot-routes-highlight",
+            "type": "line",
+            "source": "ddotroutes",
+            "source-layer": "ddot_routes",
+            "interactive": "true",
+            "filter": [
+                "==",
+                "route_num",
+                ""
+            ],
+            "layout": {
+                "visibility": "visible",
+                "line-cap": "round",
+                "line-join": "round"
+            },
+            "paint": {
+                "line-color": {
+                    "base": 1,
+                    "type": "categorical",
+                    "property": "orientation",
+                    "stops": [
+                        [
+                            "Downtown",
+                            "#499147"
+                        ],
+                        [
+                            "Connect Ten",
+                            "#00787a"
+                        ],
+                        [
+                            "East-West",
+                            "#116FA8"
+                        ],
+                        [
+                            "North-South",
+                            "#865B8C"
+                        ],
+                        [
+                            "Special",
+                            "#d07c32"
+                        ]
+                    ]
+                },
+                "line-width": {
+                    "base": 1,
+                    "stops": [[9,6],[16,24],[22,90]]
+                },
+                "line-offset": 0,
+                "line-opacity": 0.6
+            }
+        },
+        {
+            "id": "ddot-routes-case",
+            "type": "line",
+            "source": "ddotroutes",
+            "source-layer": "ddot_routes",
+            "interactive": "true",
+            "filter": [
+                "==",
+                "route_num",
+                ""
+            ],
+            "layout": {
+                "visibility": "visible",
+                "line-cap": "round",
+                "line-join": "round"
+            },
+            "paint": {
+                "line-color": "black",
+                "line-width": {
+                    "base": 1,
+                    "stops": [[9,1.5],[16,8],[22,69]]
+                },
+                "line-offset": 0,
+                "line-opacity": 1
+            }
+        },
+        {
+            "id": "ddot-routes",
+            "type": "line",
+            "source": "ddotroutes",
+            "source-layer": "ddot_routes",
+            "filter": [
+                "==",
+                "route_num",
+                ""
+            ],
+            "interactive": "true",
+            "layout": {
+                "visibility": "visible",
+                "line-cap": "round",
+                "line-join": "round"
+            },
+            "paint": {
+                "line-color": {
+                    "base": 1,
+                    "type": "categorical",
+                    "property": "orientation",
+                    "stops": [
+                        [
+                            "Downtown",
+                            "#78AA77"
+                        ],
+                        [
+                            "Connect Ten",
+                            "#006466"
+                        ],
+                        [
+                            "East-West",
+                            "#619EC2"
+                        ],
+                        [
+                            "North-South",
+                            "#A081A5"
+                        ],
+                        [
+                            "Special",
+                            "#D0A681"
+                        ]
+                    ]
+                },
+                "line-width": {
+                    "base": 1,
+                    "stops": [[9,1],[16,6],[22,60]]
+                },
+                "line-offset": 0,
+                "line-opacity": 1
+            }
+        },
+        {
             "id": "road-label-small",
             "type": "symbol",
             "metadata": {
@@ -11582,8 +11720,8 @@
         {
             "id": "ddot-new-label-mask",
             "type": "symbol",
-            "source": "composite",
-            "source-layer": "ddot_routes_20180901",
+            "source": "ddotroutes",
+            "source-layer": "ddot_routes",
             "filter": [
                 "==",
                 "route_num",
@@ -11666,8 +11804,8 @@
         {
             "id": "ddot-new copy",
             "type": "symbol",
-            "source": "composite",
-            "source-layer": "ddot_routes_20180901",
+            "source": "ddotroutes",
+            "source-layer": "ddot_routes",
             "filter": [
                 "==",
                 "route_num",
