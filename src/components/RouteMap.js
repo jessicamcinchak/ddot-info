@@ -126,7 +126,7 @@ class RouteMap extends React.Component {
 
     this.popup = new mapboxgl.Popup({
       closeButton: false,
-      offset: 10
+      offset: 20
     })
 
     this.fetchData();
@@ -135,7 +135,7 @@ class RouteMap extends React.Component {
     this.map.on('load', e => {
       let scheduleRoute = Schedules[this.props.route.number]
 
-      this.map.fitBounds(scheduleRoute.bbox, {padding: 10})
+      this.map.fitBounds(scheduleRoute.bbox, {padding: 20, duration: 0})
       this.map.setFilter('ddot-routes', ["==", "route_num", parseInt(this.props.route.number, 10)])
       this.map.setFilter('ddot-routes-case', ["==", "route_num", parseInt(this.props.route.number, 10)])
       this.map.getSource("timepoints").setData({"type": "FeatureCollection", "features": this.state.timepointFeatures})
@@ -150,12 +150,24 @@ class RouteMap extends React.Component {
       })
 
       this.map.addLayer({
+        "id": "realtimeTripsHighlight",
+        "source": "realtimeTrips",
+        "type": "circle",
+        "filter": ["==", "tripId", ""],
+        "paint": {
+          "circle-radius": 20,
+          "circle-color": "rgba(241,244,66,0.8)",
+          "circle-blur": 0.3
+        }
+      })
+      this.map.addLayer({
         "id": "realtimeTrips",
         "source": "realtimeTrips",
         "type": "symbol",
         "layout": {
           "icon-image": "bus-15",
-          "icon-size": 1.25
+          "icon-size": 1.25,
+          "icon-allow-overlap": true
         }
       })
 
@@ -163,18 +175,29 @@ class RouteMap extends React.Component {
         const features = this.map.queryRenderedFeatures(e.point, {layers: ["realtimeTrips"]})
         if(features.length > 0) {
           const bus = features[0]
+          this.popup
+            .setLngLat(bus.geometry.coordinates)
+            .setHTML(`
+              <span>${_.capitalize(bus.properties.direction)}<h3>
+              <span>to ${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</span>
+              <h5>Next stop</h5>
+              <h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3><span>${bus.properties.updateTime}</span>
+              `)    
           this.setState({
             selectedRealtimeTrip: bus.properties.tripId
           })
           if(!this.popup.isOpen()) {
-            this.popup
-              .setLngLat(bus.geometry.coordinates)
-              .setHTML(`<h3>${_.capitalize(bus.properties.direction)}<h3><h5>to</h5><h3>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</h3><h5>Next stop</h5><h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3><span>${bus.properties.updateTime}</span>`)    
             this.popup.addTo(this.map)
           }
+          this.map.setFilter("realtimeTripsHighlight", ["==", "tripId", bus.properties.tripId])
+          this.map.easeTo({
+            center: bus.geometry.coordinates,
+            zoom: 14
+          })
         }
         else {
           this.setState({selectedRealtimeTrip: null})
+          this.map.setFilter("realtimeTripsHighlight", ["==", "tripId", ""])
         }
       })
 
@@ -183,16 +206,22 @@ class RouteMap extends React.Component {
     window.addEventListener('resize', this._resize);
   }
 
-  componentWillUpdate() {
+  componentWillUpdate(nextProps, nextState) {
     if(this.state.fetchedData) {
-      this.map.getSource("realtimeTrips").setData({"type": "FeatureCollection", "features": this.state.realtimeTrips})
+      this.map.getSource("realtimeTrips").setData({"type": "FeatureCollection", "features": nextState.realtimeTrips})
     }
-    if(this.state.selectedRealtimeTrip) {
-      const bus = this.state.realtimeTrips.filter(rt => { return this.state.selectedRealtimeTrip === rt.properties.tripId })[0]
+    if(nextState.selectedRealtimeTrip) {
+      const bus = nextState.realtimeTrips.filter(rt => { return nextState.selectedRealtimeTrip === rt.properties.tripId })[0]
       this.popup
         .setLngLat(bus.geometry.coordinates)
-        .setHTML(`<h3>${_.capitalize(bus.properties.direction)}<h3><h5>to</h5><h3>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</h3><h5>Next stop</h5><h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3><span>${bus.properties.updateTime}</span>`)
-      if(!this.popup.isOpen()) {
+        .setHTML(`
+          <h4>${_.capitalize(bus.properties.direction)}</h4>
+          <span>to <b>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</b></span>
+          <br />
+          <h5>Next stop</h5>
+          <h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3>
+          `)        
+        if(!this.popup.isOpen()) {
         this.popup.addTo(this.map)
       }
     }

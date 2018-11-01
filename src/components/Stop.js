@@ -9,7 +9,7 @@ import TransferIcon from '@material-ui/icons/SwapHoriz';
 
 import Stops from '../data/stops.js';
 import TopNav from './TopNav';
-// import StopWithPredictionMap from './StopWithPredictionMap';
+import StopWithPredictionMap from './StopWithPredictionMap';
 import StopTransfers from './StopTransfers';
 import StopRouteSchedule from './StopRouteSchedule';
 import RouteBadge from './RouteBadge';
@@ -135,7 +135,7 @@ class Stop extends React.Component {
     return (
       <div className='App' style={{ background: Helpers.colors['background']}}>
         <TopNav />
-        {/* <StopWithPredictionMap stopId={stopId} center={stopCoords} prediction={this.state.tripData} route={this.state.route} />  */}
+        <StopWithPredictionMap stopId={stopId} center={stopCoords} prediction={this.state.tripData} route={this.state.route} /> 
         <div className='routes'>
           <Card>
             <div style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
