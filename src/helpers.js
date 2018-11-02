@@ -1,4 +1,6 @@
 import routeDetails from './data/routeDetails'
+import _ from 'lodash';
+import {AssignmentReturnedRounded} from '@material-ui/icons'
 
 const Helpers = {
   /**
@@ -49,6 +51,18 @@ const Helpers = {
   getRouteDetails: function(number) {
     return routeDetails.filter(rd => rd.number === parseInt(number,10))[0]
   },
+
+  /**
+   * Given a list of trips, return unique route and direction
+   */
+  getUniqueRoutes: function(trips) {
+    let uniqRouteDirection = _.uniqBy(trips, e => { return `${e.directionId}${e.routeId }`})
+    let returned = uniqRouteDirection.map(u => {
+      let route = _.filter(routeDetails, rd => { return rd.rt_id === parseInt(u.routeId, 10)})[0]
+      return [route.number.toString(), route.directions[parseInt(u.directionId, 10)]]
+    })
+    return returned;
+  }
 };
 
 export default Helpers;

@@ -17,7 +17,7 @@ import routeDetails from '../data/routeDetails.js';
 import ScheduleTable from './ScheduleTable.js';
 
 
-/* GraphQL query string; accepts a coordinate point and radius (in feet) and returns events at addresses within the radius */ 
+/* GraphQL query string; accepts a route number and returns trips & stop times where timepoint = 1 */ 
 const GET_ROUTE_DATA = gql`
   query getRouteSchedule($route: String! ) {
       allRoutes(condition: {routeShortName: $route}) {

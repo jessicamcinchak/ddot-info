@@ -10,7 +10,6 @@ import _ from 'lodash'
 /** Linked route number and name with optional icons for RoutesList, NearbyList, StopTransfers and Stop */
 class RouteLink extends Component {
   render() {
-    console.log(this.props.id)
     const route = _.find(routeDetails, a => { return a.number === parseInt(this.props.id, 10) })
 
     const styles = {

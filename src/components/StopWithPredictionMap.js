@@ -11,7 +11,6 @@ class StopWithPredictionMap extends React.Component {
 
   constructor(props) {
     super(props)
-    console.log(props)
     this.state = {
       height: window.innerWidth < 768 ? 300 : (window.innerHeight - 190),
     }
@@ -26,11 +25,19 @@ class StopWithPredictionMap extends React.Component {
     })
 
     this.map.on('load', e => {
-      // this.map.addSource("thisStop", {
-      //   "type": "geojson",
-      //   "data": {"type": "FeatureCollection", "features": this.state.realtimeTrips}
-      // })
-      console.log('loaded')
+      this.map.addSource("thisStop", {
+        "type": "geojson",
+        "data": {"type": "FeatureCollection", "features": [{
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              this.props.stop.stopLon,
+              this.props.stop.stopLat
+            ]
+          }
+        },]}
+      })
     })
 
     window.addEventListener('resize', this._resize);
@@ -38,7 +45,7 @@ class StopWithPredictionMap extends React.Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
-    console.log(nextProps, nextState)
+    // console.log(nextProps, nextState)
   }
 
   _resize = () => {
@@ -58,7 +65,7 @@ class StopWithPredictionMap extends React.Component {
         <Card className="routeMap" elevation={0}>
           <div style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
            <BusStop style={{ marginLeft: '1em', backgroundColor: 'rgba(0, 0, 0, .8)', color: 'yellow', borderRadius: 999, height: '1.8em', width: '1.8em' }}/>
-           <CardHeader title={'STOPNAME'} subheader={`Stop ID: #${this.props.stopId}`} style={{ fontSize: '1.2em', position: 'sticky'}}/>
+           <CardHeader title={this.props.stop.stopName} subheader={`Stop ID: #${this.props.stopId}`} style={{ fontSize: '1.2em', position: 'sticky'}}/>
          </div>
         <CardContent style={{ padding: 0, margin: 0 }}>
           <div ref={el => this.mapContainer = el} style={{height: this.state.height, width: '100%'}} />

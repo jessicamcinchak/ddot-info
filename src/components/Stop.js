@@ -35,24 +35,6 @@ const GET_STOP_DATA = gql`
         stopDesc
         stopLat
         stopLon
-        zoneId
-        stopUrl
-        stopCode
-        stopStreet
-        stopCity
-        stopRegion
-        stopPostcode
-        stopCountry
-        stopTimezone
-        direction
-        position
-        parentStation
-        wheelchairBoarding
-        wheelchairAccessible
-        locationType
-        vehicleType
-        platformCode
-        theGeom
         routesAtStopList{
           routeLongName
           routeShortName
@@ -165,15 +147,8 @@ class Stop extends React.Component {
 
   render() {
     const stopId = this.props.match.params.name;
-    const stopRoutes = Stops[stopId.toString()].routes
     const stopTransfers = Stops[stopId.toString()].transfers;
     const { slideIndex } = this.state;
-    
-    // sort routes that stop here by route number
-    stopRoutes.sort(function(a, b) {
-      return a[0] - b[0];
-    });
-
     return (
       <Query
         query={GET_STOP_DATA}
@@ -186,11 +161,11 @@ class Stop extends React.Component {
           if(data) {
             const stop = data.stopByFeedIndexAndStopId
             const stopCoords = [stop.stopLon, stop.stopLat];
-            console.log(new Set(stop.tripsAtStopList.map(t => [t.directionId, _.filter(routeDetails, ['rt_id', parseInt(t.routeId, 10)])[0].name])))
+            const stopRoutes = Helpers.getUniqueRoutes(stop.tripsAtStopList).sort(function(a, b) {return a[0] - b[0];});
             return ( 
               <div className='App' style={{ background: Helpers.colors['background']}}>
                 <TopNav />
-                <StopWithPredictionMap stopId={stopId} center={stopCoords} prediction={this.state.tripData} route={this.state.route} /> 
+                <StopWithPredictionMap stopId={stopId} center={stopCoords} prediction={this.state.tripData} route={this.state.route} stop={stop} /> 
                 <div className='routes'>
                   <Card>
                     <div style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
