@@ -9,7 +9,6 @@ import _ from 'lodash';
 import chroma from 'chroma-js';
 import moment from 'moment';
 // import Schedules from '../data/schedules.js'
-import routeDetails from '../data/routeDetails';
 import Stops from '../data/stops.js'
 import RouteBadge from './RouteBadge';
 

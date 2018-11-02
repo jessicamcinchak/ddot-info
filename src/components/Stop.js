@@ -3,11 +3,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import SwipeableViews from 'react-swipeable-views';
 import _ from 'lodash';
+import gql from 'graphql-tag'
 import Toolbar from '@material-ui/core/Toolbar';
 import { Card, CardHeader, Tabs, Tab, AppBar } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import TransferIcon from '@material-ui/icons/SwapHoriz';
 
+import routeDetails from '../data/routeDetails';
 import Stops from '../data/stops.js';
 import TopNav from './TopNav';
 import StopWithPredictionMap from './StopWithPredictionMap';
@@ -17,6 +19,7 @@ import RouteBadge from './RouteBadge';
 import RouteLink from './RouteLink';
 import RoutePredictionList from './RoutePredictionList';
 import Helpers from '../helpers';
+import { Query } from 'react-apollo';
 
 const styles = {
   title: {
@@ -24,6 +27,46 @@ const styles = {
     fontSize: '1.25em'
   }
 }
+
+const GET_STOP_DATA = gql`
+  query getStopData($stop: String!) {
+      stopByFeedIndexAndStopId(feedIndex: 1, stopId: $stop) {
+        stopName
+        stopDesc
+        stopLat
+        stopLon
+        zoneId
+        stopUrl
+        stopCode
+        stopStreet
+        stopCity
+        stopRegion
+        stopPostcode
+        stopCountry
+        stopTimezone
+        direction
+        position
+        parentStation
+        wheelchairBoarding
+        wheelchairAccessible
+        locationType
+        vehicleType
+        platformCode
+        theGeom
+        routesAtStopList{
+          routeLongName
+          routeShortName
+          routeId
+        }
+        tripsAtStopList{
+          tripId
+          routeId
+          directionId
+          serviceId
+        }
+      }
+    }
+`
 
 /** Top level component at /stops/{#} */
 class Stop extends React.Component {
@@ -123,7 +166,6 @@ class Stop extends React.Component {
   render() {
     const stopId = this.props.match.params.name;
     const stopRoutes = Stops[stopId.toString()].routes
-    const stopCoords = [Stops[stopId.toString()].lon, Stops[stopId.toString()].lat];
     const stopTransfers = Stops[stopId.toString()].transfers;
     const { slideIndex } = this.state;
     
@@ -133,72 +175,90 @@ class Stop extends React.Component {
     });
 
     return (
-      <div className='App' style={{ background: Helpers.colors['background']}}>
-        <TopNav />
-        <StopWithPredictionMap stopId={stopId} center={stopCoords} prediction={this.state.tripData} route={this.state.route} /> 
-        <div className='routes'>
-          <Card>
-            <div style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
-              <CardHeader title="Bus routes that stop here" subheader="Showing next arrivals and today's schedule. Transfers tab shows nearby routes" classes={{ title: this.props.classes.title }} style={{ fontSize: '1.1em' }}/>
-            </div>
-          </Card>
-          <AppBar position="static" color="red" style={{ display: 'flex' }} elevation={0}>
-            <Toolbar>
-              <Tabs
-                onChange={this.handleTabsChange}
-                value={slideIndex}
-                indicatorColor="primary"
-                textColor="primary"
-                scrollable={stopRoutes.length > 5 ? true : false}>
-                {stopRoutes.map((r, i) => (
-                  <Tab label={<RouteBadge id={r[0]} />} value={i} style={{ minWidth: 40, width: 50 }} key={i} />
-                ))}
-                <Tab label={<div style={{display: 'flex', alignItems: 'center', flexDirection: 'column', height: 120}}><TransferIcon />Transfers</div>} value={stopRoutes.length} style={{fontWeight: 700}} />
-              </Tabs>
-            </Toolbar>
-          </AppBar>
-          <SwipeableViews
-            axis='x'
-            index={slideIndex}
-            onChangeIndex={this.handleTabsChange}>
-            {stopRoutes.map((r, i) => (
-              <div key={i}>
-                <AppBar position="static" color="default" elevation={0} style={{ display: 'flex' }}>
-                  <Toolbar style={{ justifyContent: 'space-between' }} elevation={0}>
-                    <RouteLink id={r[0]} />
-                  </Toolbar>
-                </AppBar>
-                <div>
-                {this.state.fetchedPredictions && this.state.fetchedStopSchedule ?
-                    <div style={{ display: 'block', padding: '0em 0em', width: '100%' }}>
-                      <RoutePredictionList
-                        predictions={_.filter(this.state.predictions.data.entry.arrivalsAndDepartures, function(o) { return o.routeShortName === r[0].padStart(3, '0')})} 
-                        references={this.state.predictions.data.references}
-                        route={Helpers.getRouteDetails(r)}
-                        stop={stopId}
-                        multipleDirs={this.state.multipleDirs}
-                        isOpen={i === slideIndex}
-                        onChange={this.handleRoutePredictionChange} />
-                    {/* <StopRouteSchedule 
-                      schedules={this.state.scheduledStops.data.entry.stopRouteSchedules.filter} 
-                      route={r[0]}
-                      multipleDirs={this.state.multipleDirs}
-                      predictions={_.filter(this.state.predictions.data.entry.arrivalsAndDepartures, function(o) { return o.routeShortName === r[0].padStart(3, '0')}).map(p => p.tripId)} 
-                      /> */}
-                      </div> : ``}
-                  </div>
+      <Query
+        query={GET_STOP_DATA}
+        variables={{stop: this.props.match.params.name}}>
+        {({ loading, error, data }) => {
+          if(loading) {
+            return <div>loading</div>
+          }
+          if(error) return `Error! ${error.message}`
+          if(data) {
+            const stop = data.stopByFeedIndexAndStopId
+            const stopCoords = [stop.stopLon, stop.stopLat];
+            console.log(new Set(stop.tripsAtStopList.map(t => [t.directionId, _.filter(routeDetails, ['rt_id', parseInt(t.routeId, 10)])[0].name])))
+            return ( 
+              <div className='App' style={{ background: Helpers.colors['background']}}>
+                <TopNav />
+                <StopWithPredictionMap stopId={stopId} center={stopCoords} prediction={this.state.tripData} route={this.state.route} /> 
+                <div className='routes'>
+                  <Card>
+                    <div style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
+                      <CardHeader title="Bus routes that stop here" subheader="Showing next arrivals and today's schedule. Transfers tab shows nearby routes" classes={{ title: this.props.classes.title }} style={{ fontSize: '1.1em' }}/>
+                    </div>
+                  </Card>
+                  <AppBar position="static" color="red" style={{ display: 'flex' }} elevation={0}>
+                    <Toolbar>
+                      <Tabs
+                        onChange={this.handleTabsChange}
+                        value={slideIndex}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        scrollable={stopRoutes.length > 5 ? true : false}>
+                        {stopRoutes.map((r, i) => (
+                          <Tab label={<RouteBadge id={r[0]} />} value={i} style={{ minWidth: 40, width: 50 }} key={i} />
+                        ))}
+                        <Tab label={<div style={{display: 'flex', alignItems: 'center', flexDirection: 'column', height: 120}}><TransferIcon />Transfers</div>} value={stopRoutes.length} style={{fontWeight: 700}} />
+                      </Tabs>
+                    </Toolbar>
+                  </AppBar>
+                  <SwipeableViews
+                    axis='x'
+                    index={slideIndex}
+                    onChangeIndex={this.handleTabsChange}>
+                    {stopRoutes.map((r, i) => (
+                      <div key={i}>
+                        <AppBar position="static" color="default" elevation={0} style={{ display: 'flex' }}>
+                          <Toolbar style={{ justifyContent: 'space-between' }} elevation={0}>
+                            <RouteLink id={r[0]} />
+                          </Toolbar>
+                        </AppBar>
+                        <div>
+                        {this.state.fetchedPredictions && this.state.fetchedStopSchedule ?
+                            <div style={{ display: 'block', padding: '0em 0em', width: '100%' }}>
+                              <RoutePredictionList
+                                predictions={_.filter(this.state.predictions.data.entry.arrivalsAndDepartures, function(o) { return o.routeShortName === r[0].padStart(3, '0')})} 
+                                references={this.state.predictions.data.references}
+                                route={Helpers.getRouteDetails(r)}
+                                stop={stopId}
+                                multipleDirs={this.state.multipleDirs}
+                                isOpen={i === slideIndex}
+                                onChange={this.handleRoutePredictionChange} />
+                            <StopRouteSchedule 
+                              schedules={this.state.scheduledStops.data.entry.stopRouteSchedules.filter} 
+                              route={r[0]}
+                              multipleDirs={this.state.multipleDirs}
+                              predictions={_.filter(this.state.predictions.data.entry.arrivalsAndDepartures, function(o) { return o.routeShortName === r[0].padStart(3, '0')}).map(p => p.tripId)} 
+                              />
+                              </div> : ``}
+                          </div>
+                        </div>
+                    ))}
+                    <div>
+                      {stopTransfers.length > 0 && 
+                        this.state.fetchedStopSchedule && 
+                        this.state.fetchedPredictions ? 
+                        <StopTransfers stops={stopTransfers} /> : 
+                        null}
+                    </div>
+                    </SwipeableViews>
                 </div>
-            ))}
-            <div>
-              {stopTransfers.length > 0 && 
-                this.state.fetchedStopSchedule && 
-                this.state.fetchedPredictions ? 
-                <StopTransfers stops={stopTransfers} /> : 
-                null}
-            </div>
-            </SwipeableViews>
-        </div>
-      </div>
+              </div>
+            )
+            }
+          } 
+        }
+      </Query>
     );
   }
 }
