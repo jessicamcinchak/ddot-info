@@ -8,7 +8,8 @@ import Helpers from '../helpers'
 import _ from 'lodash';
 import chroma from 'chroma-js';
 import moment from 'moment';
-import Schedules from '../data/schedules.js'
+// import Schedules from '../data/schedules.js'
+import routeDetails from '../data/routeDetails';
 import Stops from '../data/stops.js'
 import RouteBadge from './RouteBadge';
 
@@ -18,23 +19,13 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2l0eW9mZGV0cm9pdCIsImEiOiJjamw1eDB4YWgycmVkM
 class RouteMap extends React.Component {
 
   constructor(props) {
-    super(props)
+    super(props);
 
-    let tripIds = {};
-    let scheduleRoute = Schedules[this.props.route.number]
-    let schedule = scheduleRoute.schedules
-    Object.keys(schedule).forEach(svc => {
-      Object.keys(schedule.weekday).forEach(dir => {
-        if (!tripIds[dir]) {
-          tripIds[dir] = [];
-        }
-        tripIds[dir] = tripIds[dir].concat(schedule[svc][dir].trips.map(trip => trip.trip_id));
-      });
-    });
+    this.route = Helpers.getRouteDetails(this.props.route.number)
 
     // make timepoint GeoJSON
-    const firstDir = Object.keys(schedule.weekday)[0]
-    const firstDirTimepoints = scheduleRoute.timepoints[firstDir]
+    const firstDir = this.route.directions[0]
+    const firstDirTimepoints = this.route.timepoints[firstDir]
     const timepointFeatures = firstDirTimepoints.map(t => {      
       return {
         "type": "Feature",
@@ -52,7 +43,7 @@ class RouteMap extends React.Component {
       }
     })
 
-    const stopFeatures = _.filter(Stops, s => { return s.routes.map(r => r[0]).indexOf(scheduleRoute.id) > -1 }).map(t => {
+    const stopFeatures = _.filter(Stops, s => { return s.routes.map(r => r[0]).indexOf(this.route.number.toString()) > -1 }).map(t => {
       return {
         "type": "Feature",
         "geometry": {
@@ -73,8 +64,7 @@ class RouteMap extends React.Component {
       realtimeTrips: [],
       selectedRealtimeTrip: null,
       fetchedData: false,
-      scheduleRoute: scheduleRoute,
-      tripIds: tripIds,
+      directions: this.route.directions,
       timepointFeatures: timepointFeatures,
       stopFeatures: stopFeatures
     }
@@ -85,7 +75,8 @@ class RouteMap extends React.Component {
       .then(response => response.json())
       .then(d => {
         let geojson = _.sortBy(d.data.list, 'status.tripId').map((bus, i) => {
-          let direction = _.findKey(this.state.tripIds, t => { return t.indexOf(bus.status.activeTripId.slice(-4)) > -1});
+          let tripDetail = d.data.references.trips.filter(a => a.id === bus.status.activeTripId)[0]
+          let direction = this.route.directions[parseInt(tripDetail.directionId)]          
           return {
             "type": "Feature",
             "geometry": {
@@ -102,7 +93,7 @@ class RouteMap extends React.Component {
               "scheduleDeviation": bus.status.scheduleDeviation,
               "updateTime": moment(bus.status.lastUpdateTime).format("h:mm:ss a"),
               "onTime": bus.status.scheduleDeviation / 60,
-              "lastStop": this.state.scheduleRoute.timepoints[direction] ? this.state.scheduleRoute.timepoints[direction].slice(-1)[0] : ``,
+              "lastStop": this.route.timepoints[direction] ? this.route.timepoints[direction].slice(-1)[0] : ``,
               "direction": direction
             }
           }
@@ -133,9 +124,7 @@ class RouteMap extends React.Component {
     this.interval = setInterval(() => this.fetchData(), 3000);
 
     this.map.on('load', e => {
-      let scheduleRoute = Schedules[this.props.route.number]
-
-      this.map.fitBounds(scheduleRoute.bbox, {padding: 20, duration: 0})
+      // this.map.fitBounds(scheduleRoute.bbox, {padding: 20, duration: 0})
       this.map.setFilter('ddot-routes', ["==", "route_num", parseInt(this.props.route.number, 10)])
       this.map.setFilter('ddot-routes-case', ["==", "route_num", parseInt(this.props.route.number, 10)])
       this.map.getSource("timepoints").setData({"type": "FeatureCollection", "features": this.state.timepointFeatures})
@@ -179,7 +168,7 @@ class RouteMap extends React.Component {
             .setLngLat(bus.geometry.coordinates)
             .setHTML(`
               <span>${_.capitalize(bus.properties.direction)}<h3>
-              <span>to ${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</span>
+              <span>to ${Stops[this.route.timepoints[bus.properties.direction].slice(-1)].name}</span>
               <h5>Next stop</h5>
               <h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3><span>${bus.properties.updateTime}</span>
               `)    
@@ -216,7 +205,7 @@ class RouteMap extends React.Component {
         .setLngLat(bus.geometry.coordinates)
         .setHTML(`
           <h4>${_.capitalize(bus.properties.direction)}</h4>
-          <span>to <b>${Stops[this.state.scheduleRoute.timepoints[bus.properties.direction].slice(-1)].name}</b></span>
+          <span>to ${Stops[this.route.timepoints[bus.properties.direction].slice(-1)].name}</b></span>
           <br />
           <h5>Next stop</h5>
           <h3>${Stops[bus.properties.nextStop.slice(5,)].name}</h3>
