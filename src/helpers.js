@@ -62,6 +62,14 @@ const Helpers = {
       return [route.number.toString(), route.directions[parseInt(u.directionId, 10)]]
     })
     return returned;
+  },
+
+  /**
+   * Given an array [routeId, directionNumber] return [routeNumber, directionText]
+   */
+  transformRouteDirection: function(routeDir) {
+    let route = _.filter(routeDetails, rd => { return rd.rt_id === routeDir[0]})[0]
+    return [route.number.toString(), route.directions[routeDir[1]]]
   }
 };
 

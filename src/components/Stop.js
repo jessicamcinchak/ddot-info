@@ -10,7 +10,6 @@ import { withStyles } from '@material-ui/core/styles';
 import TransferIcon from '@material-ui/icons/SwapHoriz';
 
 import routeDetails from '../data/routeDetails';
-import Stops from '../data/stops.js';
 import TopNav from './TopNav';
 import StopWithPredictionMap from './StopWithPredictionMap';
 import StopTransfers from './StopTransfers';
@@ -45,6 +44,14 @@ const GET_STOP_DATA = gql`
           routeId
           directionId
           serviceId
+        }
+        stopsNearbyList {
+          stopId
+          stopName
+          stopDesc
+          stopLat
+          stopLon
+          routeDirectionAtStop
         }
       }
     }
@@ -147,7 +154,6 @@ class Stop extends React.Component {
 
   render() {
     const stopId = this.props.match.params.name;
-    const stopTransfers = Stops[stopId.toString()].transfers;
     const { slideIndex } = this.state;
     return (
       <Query
@@ -162,6 +168,7 @@ class Stop extends React.Component {
             const stop = data.stopByFeedIndexAndStopId
             const stopCoords = [stop.stopLon, stop.stopLat];
             const stopRoutes = Helpers.getUniqueRoutes(stop.tripsAtStopList).sort(function(a, b) {return a[0] - b[0];});
+            const stopTransfers = stop.stopsNearbyList.map(snl => [...Helpers.transformRouteDirection(JSON.parse(snl.routeDirectionAtStop)), snl.stopId])
             return ( 
               <div className='App' style={{ background: Helpers.colors['background']}}>
                 <TopNav />
