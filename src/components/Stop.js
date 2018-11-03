@@ -8,12 +8,9 @@ import Toolbar from '@material-ui/core/Toolbar';
 import { Card, CardHeader, Tabs, Tab, AppBar } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import TransferIcon from '@material-ui/icons/SwapHoriz';
-
-import routeDetails from '../data/routeDetails';
 import TopNav from './TopNav';
 import StopWithPredictionMap from './StopWithPredictionMap';
 import StopTransfers from './StopTransfers';
-import StopRouteSchedule from './StopRouteSchedule';
 import RouteBadge from './RouteBadge';
 import RouteLink from './RouteLink';
 import RoutePredictionList from './RoutePredictionList';
@@ -172,14 +169,19 @@ class Stop extends React.Component {
             return ( 
               <div className='App' style={{ background: Helpers.colors['background']}}>
                 <TopNav />
-                <StopWithPredictionMap stopId={stopId} center={stopCoords} prediction={this.state.tripData} route={this.state.route} stop={stop} /> 
+                <StopWithPredictionMap 
+                  stopId={stopId} 
+                  center={stopCoords} 
+                  prediction={this.state.tripData} 
+                  route={this.state.route} 
+                  stop={stop} /> 
                 <div className='routes'>
                   <Card>
                     <div style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
                       <CardHeader title="Bus routes that stop here" subheader="Showing next arrivals and today's schedule. Transfers tab shows nearby routes" classes={{ title: this.props.classes.title }} style={{ fontSize: '1.1em' }}/>
                     </div>
                   </Card>
-                  <AppBar position="static" color="red" style={{ display: 'flex' }} elevation={0}>
+                  <AppBar position="static" color="default" style={{ display: 'flex' }} elevation={0}>
                     <Toolbar>
                       <Tabs
                         onChange={this.handleTabsChange}
@@ -211,17 +213,16 @@ class Stop extends React.Component {
                               <RoutePredictionList
                                 predictions={_.filter(this.state.predictions.data.entry.arrivalsAndDepartures, function(o) { return o.routeShortName === r[0].padStart(3, '0')})} 
                                 references={this.state.predictions.data.references}
-                                route={Helpers.getRouteDetails(r)}
                                 stop={stopId}
                                 multipleDirs={this.state.multipleDirs}
                                 isOpen={i === slideIndex}
                                 onChange={this.handleRoutePredictionChange} />
-                            <StopRouteSchedule 
+                            {/* <StopRouteSchedule 
                               schedules={this.state.scheduledStops.data.entry.stopRouteSchedules.filter} 
                               route={r[0]}
                               multipleDirs={this.state.multipleDirs}
                               predictions={_.filter(this.state.predictions.data.entry.arrivalsAndDepartures, function(o) { return o.routeShortName === r[0].padStart(3, '0')}).map(p => p.tripId)} 
-                              />
+                              /> */}
                               </div> : ``}
                           </div>
                         </div>

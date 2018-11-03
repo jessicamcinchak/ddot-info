@@ -1,6 +1,5 @@
 import routeDetails from './data/routeDetails'
 import _ from 'lodash';
-import {AssignmentReturnedRounded} from '@material-ui/icons'
 
 const Helpers = {
   /**

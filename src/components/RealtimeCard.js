@@ -47,7 +47,6 @@ class RealtimeCard extends Component {
     let nextStopId = null;
     if (this.props.status) {
         nextStopId = this.props.status.tripStatus.nextStop.slice(5,);
-        // nextStopDirection = Stops[nextStopId].routes.filter(a => { return parseInt(a, 10) === parseInt(this.props.route, 10)})[0][1];
     }
 
     // let opposites = {

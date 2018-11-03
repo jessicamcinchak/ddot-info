@@ -12,7 +12,6 @@ import RouteStops from './components/RouteStops';
 import BusRoute from './components/BusRoute'
 import Stop from './components/Stop';
 import Nearby from './components/Nearby';
-import SystemMap from './components/SystemMap';
 import RouteSchedule from './components/RouteSchedule';
 
 import ApolloClient from 'apollo-boost';
@@ -27,6 +26,7 @@ const client = new ApolloClient({
 
 const muiTheme = createMuiTheme({
   typography: {
+    useNextVariants: true,
     fontFamily:
       'Gibson Detroit Regular' +
       '"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
@@ -175,7 +175,6 @@ ReactDOM.render(
             <Route exact path='/' component={App} />
             <Route path='/about' component={About} />
             <Route path='/nearby' component={Nearby} />
-            <Route path='/system' component={SystemMap} />
             <Route path='/stop/:name' component={Stop} />
             <Route path="/route/:name/schedule" component={RouteSchedule} />
             <Route path="/route/:name/stops" component={RouteStops} />

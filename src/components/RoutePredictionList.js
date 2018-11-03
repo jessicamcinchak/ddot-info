@@ -11,7 +11,6 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import _ from 'lodash';
 
 import RealtimeCard from './RealtimeCard';
-import Helpers from '../helpers.js';
 
 /** Collapsable list of realtime arrivals for Stop */
 class RoutePredictionList extends React.Component {

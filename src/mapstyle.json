@@ -149,7 +149,7 @@
             "data": {"type": "FeatureCollection", "features": []}
         }
     },
-    "sprite": "mapbox://sprites/cityofdetroit/cjdndtywb04ee2slc79udmzn8",
+    "sprite": "mapbox://sprites/cityofdetroit/cjo1lny1k1wph2rpgo75j8s0a",
     "glyphs": "mapbox://fonts/cityofdetroit/{fontstack}/{range}.pbf",
     "layers": [{
             "id": "background",
@@ -4406,7 +4406,8 @@
             ],
             "layout": {
                 "line-cap": "round",
-                "line-join": "round"
+                "line-join": "round",
+                "visibility": "visible"
             },
             "paint": {
                 "line-width": {
@@ -4455,7 +4456,8 @@
             ],
             "layout": {
                 "line-cap": "round",
-                "line-join": "round"
+                "line-join": "round",
+                "visibility": "visible"
             },
             "paint": {
                 "line-width": {
@@ -4527,7 +4529,8 @@
             ],
             "layout": {
                 "line-cap": "round",
-                "line-join": "round"
+                "line-join": "round",
+                "visibility": "visible"
             },
             "paint": {
                 "line-width": {
